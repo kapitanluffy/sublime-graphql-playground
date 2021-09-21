@@ -1,3 +1,30 @@
 [
-    { "keys": ["ctrl+shift+g"], "command": "graphql_auto_query", },
+    {
+        "keys": ["ctrl+y", "v"],
+        "command": "graphql_open_query_variables",
+        "context":
+        [
+            {
+                "key": "graphql_playground.query_view",
+                "operator": "equal",
+                "operand": true
+            }
+        ]
+    },
+    {
+        "keys": ["ctrl+y", "c"],
+        "command": "graphql_create_config"
+    },
+    {
+        "keys": ["ctrl+enter"],
+        "command": "graphql_quick_run_query",
+        "context":
+        [
+            {
+                "key": "graphql_playground.query_view",
+                "operator": "equal",
+                "operand": true
+            }
+        ]
+    }
 ]

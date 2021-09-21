@@ -3,6 +3,7 @@ import sublime_plugin
 from threading import Timer
 import requests
 import os.path
+import re
 from .src.graphql_view_manager import GraphqlViewManager
 from .graphql_config import readGraphqlConfig
 
@@ -68,31 +69,33 @@ class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
             return
 
         sheets = [view.sheet(), None]
-
-        vview = self.window.find_open_file(args['variablesFile'])
         variables = {}
 
-        if vview:
-            view.run_command("graphql_open_query_variables", { "force": False })
+        if "variablesFile" in args:
+            vview = self.window.find_open_file(args['variablesFile'])
 
-            variables = sublime.decode_value(
-                vview.substr(
-                    sublime.Region(0, vview.size())
+            if vview:
+                view.run_command("graphql_open_query_variables", { "force": False })
+
+                variables = sublime.decode_value(
+                    vview.substr(
+                        sublime.Region(0, vview.size())
+                    )
                 )
-            )
 
-        if variables == {} and os.path.exists(args['variablesFile']):
-            fh = open(args['variablesFile'], 'r')
-            variables = sublime.decode_value(fh.read())
-            fh.close()
+            if variables == {} and os.path.exists(args['variablesFile']):
+                fh = open(args['variablesFile'], 'r')
+                variables = sublime.decode_value(fh.read())
+                fh.close()
 
         responseView.set_name(fileTitle)
         sheets = sheets + [responseView.sheet()]
 
-        print("xxxxxx")
+        query = view.substr(sublime.Region(0, view.size()))
+
         responseView.run_command("graphql_prepare_view", {
             "operationName": args['operationName'],
-            "query": args['query'],
+            "query": query,
             "variables": variables,
         })
 
@@ -158,10 +161,8 @@ class GraphqlBuildAnnotationsCommand(sublime_plugin.TextCommand):
 
             query = sublime.encode_value({
                 "operationName": operationName,
-                "query": self.view.substr(sublime.Region(0, self.view.size())),
                 "view": self.view.id(),
-                "variablesFile": varFile,
-                "scriptName": baseFileName
+                "variablesFile": varFile
             })
 
             cmd = "subl:graphql_open_view %s" % (query)
@@ -170,13 +171,38 @@ class GraphqlBuildAnnotationsCommand(sublime_plugin.TextCommand):
             self.view.add_regions(key, [regions[index]], "", "", flags, [annotations], annotation_styles["foreground"])
 
 
-class GraphqlAutoQueryCommand(sublime_plugin.TextCommand):
+class GraphqlQuickRunQueryCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         selection = self.view.sel()
-        expand = self.view.expand_by_class(selection[0].a, sublime.CLASS_EMPTY_LINE)
 
-        selection.clear()
-        selection.add(expand)
+        if len(selection) <= 0:
+            return
+
+        line = self.view.line(selection[0])
+        match = re.match(r'(?:query|mutation) (\w*) ?', self.view.substr(line))
+        upperLines = self.view.lines(sublime.Region(0, line.a))
+        upperLines.reverse()
+
+        if match is None:
+            for u in upperLines:
+                match = re.match(r'(?:query|mutation) (\w*) ?', self.view.substr(u))
+
+                if match is not None:
+                    break
+
+        if match is None:
+            return
+
+        w = self.view.window()
+
+        if w is None:
+            return
+
+        w.run_command("graphql_open_view", {
+            "operationName": match.group(1),
+            "view": self.view.id()
+        })
+
 
 
 class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
@@ -208,6 +234,20 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
 
         self.view.run_command("graphql_open_response_view", { "force": False })
         self.view.run_command("graphql_open_query_variables", { "force": False })
+
+    def on_query_context(self, key, operator, operand, match_all):
+        if not key.startswith("graphql_playground."):
+            return None
+
+        syntax = self.view.syntax()
+
+        if syntax and operator == sublime.OP_EQUAL:
+            return (syntax.name == "GraphQL") == operand
+
+        if syntax and operator == sublime.OP_NOT_EQUAL:
+            return (syntax.name == "GraphQL") == operand
+
+        return False
 
     def on_close(self):
         GraphqlViewManager.removeView(self.view)
