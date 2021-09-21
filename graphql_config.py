@@ -47,19 +47,18 @@ def readGraphqlConfig(view):
         if window is None:
             return
 
-        windowVariables = window.extract_variables()
         targetDirectory = None
-
-        if "folder" in windowVariables:
-            targetDirectory = windowVariables['folder']
-
-        if targetDirectory is None and "file_path" in windowVariables:
-            targetDirectory = windowVariables['file_path']
-
         folders = window.folders()
+        filePath = view.file_name()
 
         if targetDirectory is None and len(folders) > 0:
-            targetDirectory = folders[0]
+            for f in folders:
+                if filePath.startswith(f):
+                    targetDirectory = f
+                    break
+
+        if targetDirectory is None:
+            targetDirectory = os.path.dirname(filePath)
 
         if targetDirectory is None:
             return

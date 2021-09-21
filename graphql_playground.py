@@ -16,13 +16,10 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             "variables": args['variables'],
         }
 
-        graphqlConfig = readGraphqlConfig(self.view)
-
-        if graphqlConfig is None:
+        if "config" not in args:
             return
 
-        resp = requests.post(graphqlConfig['schema'], json=data)
-
+        resp = requests.post(args['config']['schema'], json=data)
         string = resp.text
 
         try:
@@ -92,11 +89,13 @@ class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
         sheets = sheets + [responseView.sheet()]
 
         query = view.substr(sublime.Region(0, view.size()))
+        graphqlConfig = readGraphqlConfig(view)
 
         responseView.run_command("graphql_prepare_view", {
             "operationName": args['operationName'],
             "query": query,
             "variables": variables,
+            "config": graphqlConfig
         })
 
         sheets = list(set(sheets + self.window.selected_sheets()))
