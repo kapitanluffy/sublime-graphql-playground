@@ -20,6 +20,10 @@
     }
   },
   { "caption": "GraphqlPlayground: Toggle Query Variables",
-    "command": "graphql_open_query_variables"
+    "command": "graphql_open_query_variables",
+    "args": { "toggle": 1 }
+  },
+  { "caption": "GraphqlPlayground: Create config",
+    "command": "graphql_create_config",
   },
 ]

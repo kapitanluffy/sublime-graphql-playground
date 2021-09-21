@@ -4,9 +4,7 @@ from threading import Timer
 import requests
 import os.path
 from .src.graphql_view_manager import GraphqlViewManager
-
-
-GRAPHQL_ENDPOINT = "https://gateway.aloi.io/wally/decoy-connector/api/graphql"
+from .graphql_config import readGraphqlConfig
 
 
 class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
@@ -16,8 +14,13 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             "query": args['query'],
             "variables": args['variables'],
         }
-        # print(data)
-        resp = requests.post(GRAPHQL_ENDPOINT, json=data)
+
+        graphqlConfig = readGraphqlConfig(self.view)
+
+        if graphqlConfig is None:
+            return
+
+        resp = requests.post(graphqlConfig['schema'], json=data)
 
         string = resp.text
 
@@ -181,17 +184,23 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
     def applies_to_primary_view_only(cls):
         return True
 
-    def on_load(self):
+    def _build_annotations(self):
         syntax = self.view.syntax()
         if (syntax != None and syntax.name != "GraphQL"): return
 
+        graphqlConfig = readGraphqlConfig(self.view)
+
+        if graphqlConfig is None:
+            print("GraphqlPlayground: No .graphqlrc.json found")
+            return
+
         self.view.run_command("graphql_build_annotations")
+
+    def on_load(self):
+        self._build_annotations()
 
     def on_modified(self):
-        syntax = self.view.syntax()
-        if (syntax != None and syntax.name != "GraphQL"): return
-
-        self.view.run_command("graphql_build_annotations")
+        self._build_annotations()
 
     def on_activated_async(self):
         syntax = self.view.syntax()

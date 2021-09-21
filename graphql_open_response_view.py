@@ -21,9 +21,9 @@ class GraphqlOpenResponseViewCommand(sublime_plugin.TextCommand):
         filePath = self.view.file_name()
         fileName = None
         # variablesFile = None
-        print('aaaa')
-        print(responseView)
-        print(GraphqlViewManager.all())
+        # print('aaaa')
+        # print(responseView)
+        # print(GraphqlViewManager.all())
 
         if filePath:
             fileName = os.path.splitext(os.path.basename(filePath))[0]

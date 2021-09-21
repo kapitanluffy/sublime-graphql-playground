@@ -1,4 +1,5 @@
 [
     { "keys": ["ctrl+shift+g"], "command": "graphql_auto_query", },
     { "keys": ["ctrl+y", "v"], "command": "graphql_open_query_variables", },
+    { "keys": ["ctrl+y", "c"], "command": "graphql_create_config", },
 ]
