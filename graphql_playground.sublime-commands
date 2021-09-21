@@ -1,0 +1,25 @@
+[
+  { "caption": "Preferences: Graphql Playground",
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/GraphqlPlayground/graphql_playground.sublime-settings",
+      "default": "{\n\t$0\n}\n"
+    }
+  },
+  { "caption": "Preferences: Graphql Playground Key Bindings",
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/GraphqlPlayground/Default (${platform}).sublime-keymap",
+      "default": "[\n\t$0\n]\n"
+    }
+  },
+  { "caption": "GraphqlPlayground: Open Readme",
+    "command": "open_file",
+    "args": {
+      "file": "${packages}/GraphqlPlayground/README.md"
+    }
+  },
+  { "caption": "GraphqlPlayground: Toggle Query Variables",
+    "command": "graphql_open_query_variables"
+  },
+]
