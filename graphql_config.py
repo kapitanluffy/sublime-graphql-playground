@@ -29,11 +29,16 @@ class GraphqlCreateConfigCommand(sublime_plugin.TextCommand):
             configView = window.new_file()
             configView.set_name(".graphqlrc.json")
 
-        if targetDirectory is not None:
-            configView = window.open_file(os.path.join(targetDirectory, ".graphqlrc.json"))
+        if targetDirectory is None:
+            return
 
-        if configView is not None and configView.size() <= 0:
+        configFile = os.path.join(targetDirectory, ".graphqlrc.json")
+        configView = window.open_file(configFile, sublime.CLEAR_TO_RIGHT)
+
+        if os.path.exists(configFile) is False:
             sublime.set_timeout(lambda: configView and configView.run_command("insert", { "characters": "{\n\"schema\": \"\"\n}" }), 200)
+
+        window.select_sheets(filter(None, [configView.sheet()]))
 
 
 def readGraphqlConfig(view):

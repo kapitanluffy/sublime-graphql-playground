@@ -202,7 +202,7 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
     def on_modified(self):
         self._build_annotations()
 
-    def on_activated_async(self):
+    def on_activated(self):
         syntax = self.view.syntax()
         if (syntax != None and syntax.name != "GraphQL"): return
 
