@@ -8,6 +8,19 @@ from .src.graphql_view_manager import GraphqlViewManager
 from .graphql_config import readGraphqlConfig
 
 
+def getQueryVariablesFile(view):
+    filePath = view.file_name()
+
+    if filePath is None:
+        return None
+
+    fileName = os.path.splitext(
+        os.path.basename(filePath)
+    )
+    filename = "%s.var.json" % (fileName[0])
+
+    return os.path.join(os.path.dirname(filePath), filename)
+
 class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         data = {
@@ -68,8 +81,10 @@ class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
         sheets = [view.sheet(), None]
         variables = {}
 
-        if "variablesFile" in args:
-            vview = self.window.find_open_file(args['variablesFile'])
+        variablesFile = getQueryVariablesFile(view)
+
+        if variablesFile is not None:
+            vview = self.window.find_open_file(variablesFile)
 
             if vview:
                 view.run_command("graphql_open_query_variables", { "force": False })
@@ -80,8 +95,8 @@ class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
                     )
                 )
 
-            if variables == {} and os.path.exists(args['variablesFile']):
-                fh = open(args['variablesFile'], 'r')
+            if variables == {} and os.path.exists(variablesFile):
+                fh = open(variablesFile, 'r')
                 variables = sublime.decode_value(fh.read())
                 fh.close()
 
@@ -141,16 +156,6 @@ class GraphqlBuildAnnotationsCommand(sublime_plugin.TextCommand):
         </body>
         """
 
-        path = self.view.file_name()
-        varFile = None
-        baseFileName = None
-
-        if path:
-            n = os.path.splitext(os.path.basename(path))
-            filename = "%s.var.json" % (n[0])
-            varFile = os.path.join(os.path.dirname(path), filename)
-            baseFileName = n[0]
-
         for [index, operationName] in enumerate(matches):
             key = "%s_%s" % (self.ANNOTATIONS_KEY, index)
             self.keys.append(key)
@@ -160,8 +165,7 @@ class GraphqlBuildAnnotationsCommand(sublime_plugin.TextCommand):
 
             query = sublime.encode_value({
                 "operationName": operationName,
-                "view": self.view.id(),
-                "variablesFile": varFile
+                "view": self.view.id()
             })
 
             cmd = "subl:graphql_open_view %s" % (query)
