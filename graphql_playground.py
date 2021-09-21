@@ -32,6 +32,10 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
         if "config" not in args:
             return
 
+        sublime.set_timeout_async(lambda: self.sendRequest(data, args))
+
+
+    def sendRequest(self, data, args):
         resp = requests.post(args['config']['schema'], json=data)
         string = resp.text
 
@@ -40,10 +44,18 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
         except:
             print("Invalid JSON response")
 
+        self.view.run_command("graphql_print_response", { "content": string })
+
+
+class GraphqlPrintResponseCommand(sublime_plugin.TextCommand):
+    def run(self, edit, **args):
+        if "content" not in args:
+            return
+
         self.view.replace(
             edit,
             sublime.Region(0, self.view.size()),
-            sublime.encode_value(string, True)
+            sublime.encode_value(args['content'], True)
         )
 
 
@@ -57,7 +69,7 @@ class GraphqlPrepareViewCommand(sublime_plugin.TextCommand):
         if self.view.size() <= 0:
             self.view.replace(edit, sublime.Region(0, self.view.size()), "// Running %s..." % (operationName))
 
-        sublime.set_timeout_async(lambda: self.view.run_command("graphql_run_query", args), 500)
+        self.view.run_command("graphql_run_query", args)
 
     def is_visible(self):
         return False
@@ -115,6 +127,7 @@ class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
 
         sheets = list(set(sheets + self.window.selected_sheets()))
         self.window.select_sheets(filter(None, sheets))
+        self.window.focus_view(view)
 
     def is_visible(self):
         return False
