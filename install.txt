@@ -1,0 +1,28 @@
+❄ GraphQL Playground
+
+##### Usage
+
+1. Run `Graphql Playground: Create config` from the command palette
+
+2. Install [LSP-graphql](https://github.com/sublimelsp/LSP-graphql) for full GraphQL language support (autocomplete, diagnostics..)
+
+2. Open a graphql file
+
+#### Keybindings
+
+- Open/close query variables (`ctrl+y`, `v`)
+
+- Create graphql config (`ctrl+y`, `c`)
+
+- Run query under the cursor (`ctrl+enter`)
+
+- Move between selected views ( `alt+1`, `alt+2`, `alt+3` )
+
+For issues and feedback:
+https://github.com/kapitanluffy/sublime-graphql-playground/issues
+
+Support us here:
+- https://patreon.com/kapitanluffy
+- https://ko-fi.com/kapitanluffy
+
+Also, thanks to the awesome people on Discord in helping me build this 🎉🎉🎉

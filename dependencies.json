@@ -1,8 +1,6 @@
 {
     "*": {
         "*": [
-            "lsp_utils",
-            "sublime_lib",
             "requests"
         ]
     }
