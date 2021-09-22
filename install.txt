@@ -1,5 +1,7 @@
 ❄ GraphQL Playground
 
+GraphQL development inside Sublime Text
+
 ##### Usage
 
 1. Run `Graphql Playground: Create config` from the command palette
