@@ -1,4 +1,7 @@
 {
     // The JSON syntax used for GraphQL response view
-    "json_syntax": "Packages/JSON/JSON.sublime-syntax"
+    "json_syntax": "Packages/JSON/JSON.sublime-syntax",
+
+    // Show debug logs
+    "debug": false
 }

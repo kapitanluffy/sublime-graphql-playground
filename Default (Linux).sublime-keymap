@@ -1,6 +1,6 @@
 [
     {
-        "keys": ["ctrl+y", "v"],
+        "keys": ["primary+y", "v"],
         "command": "graphql_open_query_variables",
         "context":
         [
@@ -12,11 +12,11 @@
         ]
     },
     {
-        "keys": ["ctrl+y", "c"],
+        "keys": ["primary+y", "c"],
         "command": "graphql_create_config"
     },
     {
-        "keys": ["ctrl+enter"],
+        "keys": ["primary+enter"],
         "command": "graphql_quick_run_query",
         "context":
         [

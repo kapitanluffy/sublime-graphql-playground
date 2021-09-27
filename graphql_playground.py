@@ -9,7 +9,7 @@ from .graphql_config import readGraphqlConfig
 from random import randint
 
 CONNID = None
-PATTERN = r'(?:query|mutation) ?(\w*) ?'
+PATTERN = r'^ *(?:query|mutation) *(\w*) *'
 
 def getQueryVariablesFile(view):
     filePath = view.file_name()
@@ -29,7 +29,7 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
         global CONNID
 
         data = {
-            "operationName": args['operationName'],
+            "operationName": args['operationName'] if args['operationName'] != "" else None,
             "query": args['query'],
             "variables": args['variables'],
         }
@@ -43,6 +43,14 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
 
     def sendRequest(self, data, args, conn):
         string = "// Error occurred"
+        resp = None
+        settings = sublime.load_settings("graphql_playground.sublime-settings")
+
+        if settings.get('debug'):
+            _data = sublime.encode_value(data)
+            print("-- Grapqhl Playground debug::start --")
+            print("\t%s" % (_data))
+            print("-- Grapqhl Playground debug::end --")
 
         try:
             resp = requests.post(args['config']['schema'], json=data)
@@ -51,7 +59,8 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             print("Graphql Playground error:", e)
 
         try:
-            string = sublime.encode_value(resp.json(), True)
+            if resp is not None:
+                string = sublime.encode_value(resp.json(), True)
         except Exception as e:
             print("Graphql Playground error:", e)
 
@@ -85,8 +94,9 @@ class GraphqlPrepareViewCommand(sublime_plugin.TextCommand):
         if self.view.size() <= 0:
             self.view.replace(edit, sublime.Region(0, self.view.size()), "// Running %s..." % (operationName))
 
-        if self.view.window():
-            self.view.window().status_message("❄ Running %s..." % (operationName))
+        window = self.view.window()
+        if window is not None:
+            window.status_message("❄ Running %s..." % (operationName))
 
         self.view.run_command("graphql_run_query", args)
 
