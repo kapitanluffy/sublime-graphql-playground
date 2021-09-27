@@ -6,7 +6,10 @@ import os.path
 import re
 from .src.graphql_view_manager import GraphqlViewManager
 from .graphql_config import readGraphqlConfig
+from random import randint
 
+CONNID = None
+PATTERN = r'(?:query|mutation) ?(\w*) ?'
 
 def getQueryVariablesFile(view):
     filePath = view.file_name()
@@ -23,6 +26,8 @@ def getQueryVariablesFile(view):
 
 class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
+        global CONNID
+
         data = {
             "operationName": args['operationName'],
             "query": args['query'],
@@ -32,30 +37,41 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
         if "config" not in args:
             return
 
-        sublime.set_timeout_async(lambda: self.sendRequest(data, args))
+        CONNID = randint(1, 100)
+        sublime.set_timeout_async(lambda: self.sendRequest(data, args, CONNID))
 
 
-    def sendRequest(self, data, args):
-        resp = requests.post(args['config']['schema'], json=data)
-        string = resp.text
+    def sendRequest(self, data, args, conn):
+        string = "// Error occurred"
 
         try:
-            string = resp.json()
-        except:
-            print("Invalid JSON response")
+            resp = requests.post(args['config']['schema'], json=data)
+            string = resp.text
+        except Exception as e:
+            print("Graphql Playground error:", e)
 
-        self.view.run_command("graphql_print_response", { "content": string })
+        try:
+            string = sublime.encode_value(resp.json(), True)
+        except Exception as e:
+            print("Graphql Playground error:", e)
+
+        self.view.run_command("graphql_print_response", { "content": string, "connection": conn })
 
 
 class GraphqlPrintResponseCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
+        global CONNID
+
         if "content" not in args:
+            return
+
+        if args["connection"] != CONNID:
             return
 
         self.view.replace(
             edit,
             sublime.Region(0, self.view.size()),
-            sublime.encode_value(args['content'], True)
+            args['content']
         )
 
 
@@ -68,6 +84,9 @@ class GraphqlPrepareViewCommand(sublime_plugin.TextCommand):
 
         if self.view.size() <= 0:
             self.view.replace(edit, sublime.Region(0, self.view.size()), "// Running %s..." % (operationName))
+
+        if self.view.window():
+            self.view.window().status_message("❄ Running %s..." % (operationName))
 
         self.view.run_command("graphql_run_query", args)
 
@@ -149,7 +168,7 @@ class GraphqlBuildAnnotationsCommand(sublime_plugin.TextCommand):
 
     def _build_annotations(self):
         matches = [];
-        regions = self.view.find_all(r'(?:query|mutation) (\w*) ?', sublime.IGNORECASE, "$1", matches);
+        regions = self.view.find_all(PATTERN, sublime.IGNORECASE, "$1", matches);
         flags = sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE
         annotation_styles = self.view.style_for_scope("region.purplish")
 
@@ -195,13 +214,13 @@ class GraphqlQuickRunQueryCommand(sublime_plugin.TextCommand):
             return
 
         line = self.view.line(selection[0])
-        match = re.match(r'(?:query|mutation) (\w*) ?', self.view.substr(line))
+        match = re.match(PATTERN, self.view.substr(line))
         upperLines = self.view.lines(sublime.Region(0, line.a))
         upperLines.reverse()
 
         if match is None:
             for u in upperLines:
-                match = re.match(r'(?:query|mutation) (\w*) ?', self.view.substr(u))
+                match = re.match(PATTERN, self.view.substr(u))
 
                 if match is not None:
                     break

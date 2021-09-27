@@ -17,7 +17,6 @@
     <img src="https://img.shields.io/badge/Ko--fi-Support-019cde?logo=ko-fi" /></a>
 </p>
 
-
 ![preview](preview.png)
 
 
@@ -28,18 +27,19 @@
 ##### Usage
 
 1. Run `Graphql Playground: Create config` from the command palette
+> It currently supports `.graphqlrc.json` for now. We are currently working on support yaml and toml extensions in the next version
 
 2. Install [LSP-graphql](https://github.com/sublimelsp/LSP-graphql) for full GraphQL language support (autocomplete, diagnostics..)
 
 2. Open a graphql file
 
-#### Keybindings
+##### Keybindings
 
-- Open/close query variables (`ctrl+y`, `v`)
+- Open/close query variables (`ctrl/cmd+y`, `v`)
 
-- Create graphql config (`ctrl+y`, `c`)
+- Create graphql config (`ctrl/cmd+y`, `c`)
 
-- Run query under the cursor (`ctrl+enter`)
+- Run query under the cursor (`ctrl/cmd+enter`)
 
 - Move between selected views ( `alt+1`, `alt+2`, `alt+3` )
 
