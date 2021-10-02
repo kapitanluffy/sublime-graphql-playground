@@ -1,5 +1,6 @@
 VIEW_REGISTRY = {}
 
+
 class GraphqlViewManager:
     @staticmethod
     def all():

@@ -3,6 +3,7 @@ import sublime_plugin
 import os.path
 from .src.graphql_view_manager import GraphqlViewManager
 
+
 class GraphqlOpenResponseViewCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         window = self.view.window()

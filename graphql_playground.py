@@ -1,6 +1,5 @@
 import sublime
 import sublime_plugin
-from threading import Timer
 import requests
 import os.path
 import re
@@ -10,6 +9,7 @@ from random import randint
 
 CONNID = None
 PATTERN = r'^ *(?:query|mutation) *(\w*) *'
+
 
 def getQueryVariablesFile(view):
     filePath = view.file_name()
@@ -23,6 +23,7 @@ def getQueryVariablesFile(view):
     filename = "%s.var.json" % (fileName[0])
 
     return os.path.join(os.path.dirname(filePath), filename)
+
 
 class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
@@ -39,7 +40,6 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
 
         CONNID = randint(1, 100)
         sublime.set_timeout_async(lambda: self.sendRequest(data, args, CONNID))
-
 
     def sendRequest(self, data, args, conn):
         string = "// Error occurred"
@@ -107,7 +107,6 @@ class GraphqlPrepareViewCommand(sublime_plugin.TextCommand):
 class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
     def run(self, **args):
         view = next(v for v in self.window.views() if v.id() == args['view'])
-        settings = sublime.load_settings("graphql_playground.sublime-settings")
 
         fileTitle = "GraphQL: %s" % args['operationName']
         if args['operationName'] is None:
@@ -164,21 +163,26 @@ class GraphqlOpenViewCommand(sublime_plugin.WindowCommand):
 
 class GraphqlBuildAnnotationsCommand(sublime_plugin.TextCommand):
     ANNOTATIONS_KEY = 'graphql_runner_annotations'
-    keys = []
+
+    def __init__(self, view):
+        super().__init__(view)
+        self.keys = []
 
     def run(self, edit, **args):
         syntax = self.view.syntax()
 
-        if (syntax != None and syntax.name != "GraphQL"): return
+        if not syntax or syntax.name != "GraphQL":
+            return
 
         for k in self.keys:
             self.view.erase_regions(k)
+        self.keys = []
 
         sublime.set_timeout(lambda: self._build_annotations(), 1000)
 
     def _build_annotations(self):
-        matches = [];
-        regions = self.view.find_all(PATTERN, sublime.IGNORECASE, "$1", matches);
+        matches = []
+        regions = self.view.find_all(PATTERN, sublime.IGNORECASE, "$1", matches)
         flags = sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE
         annotation_styles = self.view.style_for_scope("region.purplish")
 
@@ -249,7 +253,6 @@ class GraphqlQuickRunQueryCommand(sublime_plugin.TextCommand):
         })
 
 
-
 class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
     @classmethod
     def applies_to_primary_view_only(cls):
@@ -257,7 +260,8 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
 
     def _build_annotations(self):
         syntax = self.view.syntax()
-        if (syntax != None and syntax.name != "GraphQL"): return
+        if not syntax or syntax.name != "GraphQL":
+            return
 
         graphqlConfig = readGraphqlConfig(self.view)
 
@@ -275,7 +279,8 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
 
     def on_activated(self):
         syntax = self.view.syntax()
-        if (syntax != None and syntax.name != "GraphQL"): return
+        if not syntax or syntax.name != "GraphQL":
+            return
 
         self.view.run_command("graphql_open_response_view", { "force": False })
         self.view.run_command("graphql_open_query_variables", { "force": False })
@@ -296,6 +301,3 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
 
     def on_close(self):
         GraphqlViewManager.removeView(self.view)
-
-def plugin_loaded():
-    print("GraphQL loaded")
