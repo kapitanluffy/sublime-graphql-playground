@@ -42,35 +42,34 @@ class GraphqlCreateConfigCommand(sublime_plugin.TextCommand):
 
 
 def readGraphqlConfig(view):
-        window = view.window()
+    window = view.window()
 
-        if window is None:
-            return
+    if window is None:
+        return
 
-        targetDirectory = None
-        folders = window.folders()
-        filePath = view.file_name()
+    targetDirectory = None
+    folders = window.folders()
+    filePath = view.file_name()
 
-        if targetDirectory is None and len(folders) > 0:
-            for f in folders:
-                if filePath.startswith(f):
-                    targetDirectory = f
-                    break
+    if targetDirectory is None and len(folders) > 0:
+        for f in folders:
+            if filePath.startswith(f):
+                targetDirectory = f
+                break
 
-        if targetDirectory is None:
-            targetDirectory = os.path.dirname(filePath)
+    if targetDirectory is None:
+        targetDirectory = os.path.dirname(filePath)
 
-        if targetDirectory is None:
-            return
+    if targetDirectory is None:
+        return
 
-        configFile = os.path.join(targetDirectory, ".graphqlrc.json")
+    configFile = os.path.join(targetDirectory, ".graphqlrc.json")
 
-        if os.path.exists(configFile) is False:
-            return
+    if os.path.exists(configFile) is False:
+        return
 
-        fh = open(configFile, "r")
-        graphqlConfig = sublime.decode_value(fh.read())
-        fh.close()
+    fh = open(configFile, "r")
+    graphqlConfig = sublime.decode_value(fh.read())
+    fh.close()
 
-        return graphqlConfig
-
+    return graphqlConfig
