@@ -53,7 +53,10 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             print("-- Grapqhl Playground debug::end --")
 
         try:
-            resp = requests.post(args['config']['schema'], json=data)
+            if 'headers' in args['config']:
+                resp = requests.post(args['config']['schema'], headers=args['config']['headers'], json=data)
+            else:
+                resp = requests.post(args['config']['schema'], json=data)
             string = resp.text
         except Exception as e:
             print("Graphql Playground error:", e)
