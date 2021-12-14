@@ -53,8 +53,13 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             print("-- Grapqhl Playground debug::end --")
 
         try:
-            if 'headers' in args['config']:
-                resp = requests.post(args['config']['schema'], headers=args['config']['headers'], json=data)
+            if isinstance(args['config']['schema'], list):
+                schema = args['config']['schema']
+                for value in schema[0].keys():
+                    schema_url = value
+
+                headers = schema[0][schema_url]['headers']
+                resp = requests.post(schema_url, headers=headers, json=data)
             else:
                 resp = requests.post(args['config']['schema'], json=data)
             string = resp.text
