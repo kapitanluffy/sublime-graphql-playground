@@ -8,7 +8,7 @@ from .graphql_config import readGraphqlConfig
 from random import randint
 
 CONNID = None
-PATTERN = r'^ *(?:query|mutation) *(\w*) *'
+PATTERN = r'^ *(?:query|mutation) +(\w*) *'
 
 
 def getQueryVariablesFile(view):
