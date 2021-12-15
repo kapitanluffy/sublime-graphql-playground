@@ -53,15 +53,21 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             print("-- Grapqhl Playground debug::end --")
 
         try:
-            if isinstance(args['config']['schema'], list):
-                schema = args['config']['schema']
-                for value in schema[0].keys():
-                    schema_url = value
+            endpoint = args['config']['schema']
+            headers = {}
 
-                headers = schema[0][schema_url]['headers']
-                resp = requests.post(schema_url, headers=headers, json=data)
-            else:
-                resp = requests.post(args['config']['schema'], json=data)
+            if type(args['config']['schema']) is list:
+                if len(args['config']['schema']) <= 0:
+                    raise Exception("Invalid graphql config")
+
+                # Use the first endpoint only
+                c = args['config']['schema'][0]
+                endpoint, config = list(c.items())[0]
+
+                if "headers" in config:
+                    headers = config['headers']
+
+            resp = requests.post(endpoint, headers=headers, json=data)
             string = resp.text
         except Exception as e:
             print("Graphql Playground error:", e)
