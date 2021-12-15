@@ -1,7 +1,10 @@
 import sublime
 import sublime_plugin
 import os.path
+import toml
+import yaml
 
+CONFIG_PATTERN = r'(\.graphqlrc|graphql\.config)(\.json|\.js|\.ts|\.toml|\.yaml|\.yml|)'
 
 class GraphqlCreateConfigCommand(sublime_plugin.TextCommand):
     def run(self, edit):
