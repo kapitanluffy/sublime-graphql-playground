@@ -28,3 +28,7 @@ Support us here:
 - https://ko-fi.com/kapitanluffy
 
 Also, thanks to the awesome people on Discord in helping me build this 🎉🎉🎉
+
+#### Changelog
+- Add support to graphql-config `toml` and `yaml` extensions
+- Add support to graphql-config [passing headers](https://graphql-config.com/schema#passing-headers)

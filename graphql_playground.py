@@ -280,7 +280,7 @@ class GraphqlPlaygroundViewListener(sublime_plugin.ViewEventListener):
         graphqlConfig = readGraphqlConfig(self.view)
 
         if graphqlConfig is None:
-            print("GraphqlPlayground: No .graphqlrc.json found")
+            print("GraphqlPlayground: No graphql config found")
             return
 
         self.view.run_command("graphql_build_annotations")

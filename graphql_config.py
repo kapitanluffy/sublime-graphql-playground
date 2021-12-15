@@ -1,10 +1,12 @@
 import sublime
 import sublime_plugin
 import os.path
+import os
+import re
 import toml
 import yaml
 
-CONFIG_PATTERN = r'(\.graphqlrc|graphql\.config)(\.json|\.js|\.ts|\.toml|\.yaml|\.yml|)'
+CONFIG_PATTERN = r'(\.graphqlrc|graphql\.config)(\.json|\.toml|\.yaml|\.yml|)'
 
 class GraphqlCreateConfigCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -30,12 +32,12 @@ class GraphqlCreateConfigCommand(sublime_plugin.TextCommand):
 
         if targetDirectory is None:
             configView = window.new_file()
-            configView.set_name(".graphqlrc.json")
+            configView.set_name(".graphqlrc")
 
         if targetDirectory is None:
             return
 
-        configFile = os.path.join(targetDirectory, ".graphqlrc.json")
+        configFile = os.path.join(targetDirectory, ".graphqlrc")
         configView = window.open_file(configFile, sublime.CLEAR_TO_RIGHT)
 
         if os.path.exists(configFile) is False:
@@ -66,13 +68,31 @@ def readGraphqlConfig(view):
     if targetDirectory is None:
         return
 
-    configFile = os.path.join(targetDirectory, ".graphqlrc.json")
+    dirItems = os.listdir(targetDirectory)
+    configFile = None
+    graphqlConfig = None
 
-    if os.path.exists(configFile) is False:
+    try:
+        configFile = next(i for i in dirItems if re.match(CONFIG_PATTERN, i))
+    except:
+        pass
+
+    if configFile is None:
         return
 
-    fh = open(configFile, "r")
-    graphqlConfig = sublime.decode_value(fh.read())
-    fh.close()
+    configFile = os.path.join(targetDirectory, configFile)
 
+    filename, extension = os.path.splitext(configFile)
+    fh = open(configFile, "r")
+
+    if extension == ".toml":
+        graphqlConfig = toml.load(fh)
+
+    if extension == ".json":
+        graphqlConfig = sublime.decode_value(fh.read())
+
+    if extension == ".yaml" or extension == ".yml" or extension == "":
+        graphqlConfig = yaml.safe_load(fh.read())
+
+    fh.close()
     return graphqlConfig
