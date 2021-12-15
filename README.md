@@ -27,7 +27,6 @@
 ##### Usage
 
 1. Run `Graphql Playground: Create config` from the command palette
-> It currently supports `.graphqlrc.json` for now. We are currently working on support yaml and toml extensions in the next version
 
 2. Install [LSP-graphql](https://github.com/sublimelsp/LSP-graphql) for full GraphQL language support (autocomplete, diagnostics..)
 
