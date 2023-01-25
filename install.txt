@@ -24,11 +24,19 @@ For issues and feedback:
 https://github.com/kapitanluffy/sublime-graphql-playground/issues
 
 Support us here:
+- https://github.com/sponsors/kapitanluffy
 - https://patreon.com/kapitanluffy
 - https://ko-fi.com/kapitanluffy
 
 Also, thanks to the awesome people on Discord in helping me build this 🎉🎉🎉
 
 #### Changelog
+
+v3.0.0
+- Improve status message when gql request is still loading
+- Detect config files even if gql script is in subdirectory
+- Allow plugin to work even if file is "new" (not written to disk)
+
+v2
 - Add support to graphql-config `toml` and `yaml` extensions
 - Add support to graphql-config [passing headers](https://graphql-config.com/schema#passing-headers)

@@ -30,16 +30,21 @@ class GraphqlOpenResponseViewCommand(sublime_plugin.TextCommand):
             fileName = os.path.splitext(os.path.basename(filePath))[0]
             # variablesFile = os.path.join(os.path.dirname(filePath), "%s.var.json" % (fileName))
 
+        # if the file view is closed, use the filename
         if fileName and responseView is None:
             responseView = GraphqlViewManager.get(fileName)
             GraphqlViewManager.add(self.view.id(), responseView)
 
-        if fileName and responseView is None and _args['force']:
+        if responseView is None and _args['force']:
             responseView = window.new_file()
             responseView.set_scratch(True)
             responseView.assign_syntax(settings.get('json_syntax', 'Packages/JSON/JSON.sublime-syntax'))
-            GraphqlViewManager.add(self.view.id(), responseView)
+
+        if fileName and responseView:
             GraphqlViewManager.add(fileName, responseView)
+
+        if responseView:
+            GraphqlViewManager.add(self.view.id(), responseView)
 
         # if args['operationName'] is None:
         #     fileTitle = "GraphQL"

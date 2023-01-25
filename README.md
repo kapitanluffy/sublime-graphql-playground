@@ -36,7 +36,7 @@
 
 - Open/close query variables (`ctrl/cmd+y`, `v`)
 
-- Create graphql config (`ctrl/cmd+y`, `c`)
+- Create graphql config (`ctrl/cmd+y`, `c`) (Linux/OSX only)
 
 - Run query under the cursor (`ctrl/cmd+enter`)
 
@@ -44,7 +44,7 @@
 
 ##### Support
 
-You can always support me via [Patreon](https://www.patreon.com/kapitanluffy) or [Ko-fi](https://www.ko-fi.com/kapitanluffy)
+You can always support me via [Github Sponsors](https://github.com/sponsors/kapitanluffy), [Patreon](https://www.patreon.com/kapitanluffy) or [Ko-fi](https://www.ko-fi.com/kapitanluffy)
 
 ##### License
 

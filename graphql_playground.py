@@ -52,8 +52,9 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
             print("\t%s" % (_data))
             print("-- Grapqhl Playground debug::end --")
 
+        endpoint = args['config']['schema']
+
         try:
-            endpoint = args['config']['schema']
             headers = {}
 
             if type(args['config']['schema']) is list:
@@ -67,17 +68,19 @@ class GraphqlRunQueryCommand(sublime_plugin.TextCommand):
                 if "headers" in config:
                     headers = config['headers']
 
+            self.view.set_status("graphql_playground_status", "❄ Running %s" % (data['operationName']))
             resp = requests.post(endpoint, headers=headers, json=data)
             string = resp.text
         except Exception as e:
-            print("Graphql Playground error:", e)
+            print("Graphql Playground error @ request:", e, resp, endpoint, data)
 
         try:
             if resp is not None:
                 string = sublime.encode_value(resp.json(), True)
         except Exception as e:
-            print("Graphql Playground error:", e)
+            print("Graphql Playground error @ response:", e, resp)
 
+        self.view.erase_status("graphql_playground_status")
         self.view.run_command("graphql_print_response", { "content": string, "connection": conn })
 
 
@@ -107,10 +110,6 @@ class GraphqlPrepareViewCommand(sublime_plugin.TextCommand):
 
         if self.view.size() <= 0:
             self.view.replace(edit, sublime.Region(0, self.view.size()), "// Running %s..." % (operationName))
-
-        window = self.view.window()
-        if window is not None:
-            window.status_message("❄ Running %s..." % (operationName))
 
         self.view.run_command("graphql_run_query", args)
 

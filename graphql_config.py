@@ -52,35 +52,25 @@ def readGraphqlConfig(view):
     if window is None:
         return
 
-    targetDirectory = None
-    folders = window.folders()
-    filePath = view.file_name()
-
-    if targetDirectory is None and len(folders) > 0:
-        for f in folders:
-            if filePath.startswith(f):
-                targetDirectory = f
-                break
-
-    if targetDirectory is None:
-        targetDirectory = os.path.dirname(filePath)
-
-    if targetDirectory is None:
-        return
-
-    dirItems = os.listdir(targetDirectory)
     configFile = None
     graphqlConfig = None
+    openFolders = window.folders()
+    filePath = view.file_name()
 
-    try:
-        configFile = next(i for i in dirItems if re.match(CONFIG_PATTERN, i))
-    except:
-        pass
+    if filePath is not None:
+        openFolders.append(os.path.dirname(filePath))
+
+    for d in openFolders:
+        items = os.listdir(d)
+        try:
+            f = next(i for i in items if re.match(CONFIG_PATTERN, i))
+            configFile = os.path.join(d, f)
+            break
+        except:
+            pass
 
     if configFile is None:
         return
-
-    configFile = os.path.join(targetDirectory, configFile)
 
     filename, extension = os.path.splitext(configFile)
     fh = open(configFile, "r")
