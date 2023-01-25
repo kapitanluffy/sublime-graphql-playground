@@ -12,10 +12,6 @@
         ]
     },
     {
-        "keys": ["primary+y", "c"],
-        "command": "graphql_create_config"
-    },
-    {
         "keys": ["primary+enter"],
         "command": "graphql_quick_run_query",
         "context":
